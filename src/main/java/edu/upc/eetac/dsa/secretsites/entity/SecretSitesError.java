@@ -1,8 +1,11 @@
 package edu.upc.eetac.dsa.secretsites.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * Created by Marti on 24/03/2016.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SecretSitesError {
     private int status;
     private String reason;

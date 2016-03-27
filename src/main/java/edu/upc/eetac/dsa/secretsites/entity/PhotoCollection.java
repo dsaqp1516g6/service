@@ -14,5 +14,37 @@ public class PhotoCollection {
     private List<Link> links;
     private long newestTimestamp;
     private long oldestTimestamp;
-    private List<Photo> stings = new ArrayList<>();
+    private List<Photo> photos = new ArrayList<>();
+
+    public List<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<Link> links) {
+        this.links = links;
+    }
+
+    public long getNewestTimestamp() {
+        return newestTimestamp;
+    }
+
+    public void setNewestTimestamp(long newestTimestamp) {
+        this.newestTimestamp = newestTimestamp;
+    }
+
+    public long getOldestTimestamp() {
+        return oldestTimestamp;
+    }
+
+    public void setOldestTimestamp(long oldestTimestamp) {
+        this.oldestTimestamp = oldestTimestamp;
+    }
+
+    public List<Photo> getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(List<Photo> photos) {
+        this.photos = photos;
+    }
 }

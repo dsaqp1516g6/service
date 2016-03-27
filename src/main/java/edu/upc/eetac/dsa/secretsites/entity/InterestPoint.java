@@ -15,8 +15,9 @@ public class InterestPoint {
     private String name;
     private double longitude;
     private double latitude;
-    private Photo betterPhoto; //TODO is the correct whay to save the better photo?
+    private Photo bestPhoto; //TODO is the correct whay to save the better photo?
     private float rating; //TODO IS CORRECT?
+    private String status; //TODO AND THIS ONE?
     private long creationTimestamp;
     //TODO LAST MODIFIED NECESSARY? (NO UPDATES)
 
@@ -60,12 +61,12 @@ public class InterestPoint {
         this.latitude = latitude;
     }
 
-    public Photo getBetterPhoto() {
-        return betterPhoto;
+    public Photo getBestPhoto() {
+        return bestPhoto;
     }
 
-    public void setBetterPhoto(Photo betterPhoto) {
-        this.betterPhoto = betterPhoto;
+    public void setBestPhoto(Photo bestPhoto) {
+        this.bestPhoto = bestPhoto;
     }
 
     public float getRating() {
@@ -74,6 +75,14 @@ public class InterestPoint {
 
     public void setRating(float rating) {
         this.rating = rating;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public long getCreationTimestamp() {

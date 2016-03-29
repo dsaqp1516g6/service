@@ -12,6 +12,7 @@ public class SecretSitesResourceConfig extends ResourceConfig {
     public SecretSitesResourceConfig() {
         packages("edu.upc.eetac.dsa.secretsites");
         packages("edu.upc.eetac.dsa.secretsites.auth");
+        packages("edu.upc.eetac.dsa.beeter.cors");
         register(RolesAllowedDynamicFeature.class);
         register(DeclarativeLinkingFeature.class);
     }

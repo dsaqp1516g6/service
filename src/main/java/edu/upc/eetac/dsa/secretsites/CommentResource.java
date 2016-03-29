@@ -57,17 +57,32 @@ public class CommentResource {
     @Path("/{id}")
     @GET
     @Produces(SecretSitesMediaType.SECRETSITES_COMMENT)
-    public Comment getComment(@PathParam("id") String id){
+    public Response getComment(@PathParam("id") String id, @Context Request request){
+        // Create cache-control
+        CacheControl cacheControl = new CacheControl();
         Comment comment = null;
         CommentDAO commentDAO = new CommentDAOImpl();
         try {
             comment = commentDAO.getCommentById(id);
             if(comment == null)
                 throw new NotFoundException("Comment with id = "+id+" doesn't exist");
+            // Calculate the ETag on last modified date of user resource
+            EntityTag eTag = new EntityTag(Long.toString(comment.getLastModified()));
+            // Verify if it matched with etag available in http request
+            Response.ResponseBuilder rb = request.evaluatePreconditions(eTag);
+            // If ETag matches the rb will be non-null;
+            // Use the rb to return the response without any further processing
+            if (rb != null) {
+                return rb.cacheControl(cacheControl).tag(eTag).build();
+            }
+            // If rb is null then either it is first time request; or resource is
+            // modified
+            // Get the updated representation and return with Etag attached to it
+            rb = Response.ok(comment).cacheControl(cacheControl).tag(eTag);
+            return rb.build();
         } catch (SQLException e) {
             throw new InternalServerErrorException();
         }
-        return comment;
     }
 
     @Path("/{id}")

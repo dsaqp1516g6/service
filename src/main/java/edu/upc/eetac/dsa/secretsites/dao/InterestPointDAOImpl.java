@@ -67,7 +67,7 @@ public class InterestPointDAOImpl implements InterestPointDAO {
                 point.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
                 point.setStatus(getInterestPointStatus(id, userid));
                 point.setRating(getRating(id, true));
-                point.setComments((new CommentDAOImpl()).getCommentsByInterestPointId(id));
+                point.setComments((new CommentDAOImpl()).getCommentsByInterestPointId(id, System.currentTimeMillis(), true));
                 point.setPhotos((new PhotoDAOImpl()).getPhotosByPointId(id));  //TODO ORDER BY SOMETHING?¿
                 point.setBestPhoto((new PhotoDAOImpl()).getBestVotedPhoto(point.getPhotos())); //TODO to get the best voted photo in a point
             }

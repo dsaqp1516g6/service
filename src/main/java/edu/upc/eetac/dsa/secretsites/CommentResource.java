@@ -46,11 +46,11 @@ public class CommentResource {
         CommentCollection commentCollection = null;
         CommentDAO commentDAO = new CommentDAOImpl();
         try {
+            if (before && timestamp == 0) timestamp = System.currentTimeMillis();
             commentCollection = commentDAO.getCommentsByInterestPointId(pointid, timestamp, before);
         } catch (SQLException e) {
             throw new InternalServerErrorException();
         }
-
         return commentCollection;
     }
 

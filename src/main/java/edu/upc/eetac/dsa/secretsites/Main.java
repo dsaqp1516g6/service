@@ -39,6 +39,9 @@ public class Main {
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(getBaseURI()), rc);
     }
 
+    //TODO Paginació per photos (i points si vols)
+    //TODO Els links estant tots? Faltan segur
+
     /**
      * Main method.
      * @param args

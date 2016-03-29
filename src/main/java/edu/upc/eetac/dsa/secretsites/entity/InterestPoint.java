@@ -1,9 +1,13 @@
 package edu.upc.eetac.dsa.secretsites.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import edu.upc.eetac.dsa.secretsites.*;
+import org.glassfish.jersey.linking.Binding;
+import org.glassfish.jersey.linking.InjectLink;
 import org.glassfish.jersey.linking.InjectLinks;
 
 import javax.ws.rs.core.Link;
+import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 /**
@@ -11,7 +15,15 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InterestPoint {
-    @InjectLinks({})
+    @InjectLinks(value = {
+            @InjectLink(resource = SecretSitesRootAPIResource.class, style = InjectLink.Style.ABSOLUTE, rel = "home", title = "SecretSites Root API"),
+            @InjectLink(resource = InterestPointResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-points", title = "Current points", type= SecretSitesMediaType.SECRETSITES_POINT_COLLECTION),
+            @InjectLink(resource = InterestPointResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-point", title = "Create point", type = MediaType.APPLICATION_FORM_URLENCODED),
+            @InjectLink(resource = InterestPointResource.class, method = "getInterestPoint", style = InjectLink.Style.ABSOLUTE, rel = "self point", title = "Point", bindings = @Binding(name = "id", value = "${instance.id}")),
+            @InjectLink(resource = LoginResource.class, style = InjectLink.Style.ABSOLUTE, rel = "logout", title = "Logout"),
+            @InjectLink(resource = CommentResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-comments", title = "Current comments", type= SecretSitesMediaType.SECRETSITES_COMMENT_COLLECTION),
+            @InjectLink(resource = PhotoResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-photos", title = "Current photos", type= SecretSitesMediaType.SECRETSITES_PHOTO_COLLECTION)
+    })
     private List<Link> links;
     private CommentCollection comments;
     private PhotoCollection photos;

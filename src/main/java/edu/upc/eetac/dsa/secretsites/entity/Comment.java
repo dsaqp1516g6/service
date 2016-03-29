@@ -18,7 +18,7 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Comment {
-    @InjectLinks({
+    /*@InjectLinks({
             @InjectLink(resource = SecretSitesRootAPIResource.class, style = InjectLink.Style.ABSOLUTE, rel = "home", title = "SecretSites Root API"),
             @InjectLink(resource = CommentResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-comments", title = "Current comments"),
             @InjectLink(resource = CommentResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-comment", title = "Create comment", type = MediaType.APPLICATION_FORM_URLENCODED),
@@ -27,7 +27,8 @@ public class Comment {
             @InjectLink(resource = UserResource.class, method = "getUser", style = InjectLink.Style.ABSOLUTE, rel = "user-profile", title = "User profile", bindings = @Binding(name = "id", value = "${instance.userid}")),
             @InjectLink(resource = CommentResource.class, method = "getCommentsByInterestPointId", style = InjectLink.Style.ABSOLUTE, rel = "next", title = "Newer comments", bindings = {@Binding(name = "pointid", value = "${instance.pointid}"), @Binding(name = "timestamp", value = "${instance.creationTimestamp}"), @Binding(name = "before", value = "false")}),
             @InjectLink(resource = CommentResource.class, method = "getCommentsByInterestPointId", style = InjectLink.Style.ABSOLUTE, rel = "previous", title = "Older comments", bindings = {@Binding(name = "pointid", value = "${instance.pointid}"), @Binding(name = "timestamp", value = "${instance.creationTimestamp}"), @Binding(name = "before", value = "true")})
-    })
+    })*/
+    @InjectLinks({})
     private List<Link> links;
     private String id;
     private String pointid;
@@ -92,3 +93,4 @@ public class Comment {
         this.lastModified = lastModified;
     }
 }
+

@@ -17,11 +17,12 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InterestPointCollection {
-    @InjectLinks({
+    /*@InjectLinks({
             @InjectLink(resource = SecretSitesRootAPIResource.class, style = InjectLink.Style.ABSOLUTE, rel = "home", title = " SecretSites Root API"),
             @InjectLink(resource = InterestPointResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-points", title = "Current points", type= SecretSitesMediaType.SECRETSITES_POINT_COLLECTION),
             @InjectLink(resource = LoginResource.class, style = InjectLink.Style.ABSOLUTE, rel = "logout", title = "Logout")
-    })
+    })*/
+    @InjectLinks({})
     private List<Link> links;
     private long newestTimestamp;
     private long oldestTimestamp;

@@ -15,7 +15,7 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InterestPoint {
-    @InjectLinks(value = {
+    /*@InjectLinks({
             @InjectLink(resource = SecretSitesRootAPIResource.class, style = InjectLink.Style.ABSOLUTE, rel = "home", title = "SecretSites Root API"),
             @InjectLink(resource = InterestPointResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-points", title = "Current points", type= SecretSitesMediaType.SECRETSITES_POINT_COLLECTION),
             @InjectLink(resource = InterestPointResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-point", title = "Create point", type = MediaType.APPLICATION_FORM_URLENCODED),
@@ -23,7 +23,8 @@ public class InterestPoint {
             @InjectLink(resource = LoginResource.class, style = InjectLink.Style.ABSOLUTE, rel = "logout", title = "Logout"),
             @InjectLink(resource = CommentResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-comments", title = "Current comments", type= SecretSitesMediaType.SECRETSITES_COMMENT_COLLECTION),
             @InjectLink(resource = PhotoResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-photos", title = "Current photos", type= SecretSitesMediaType.SECRETSITES_PHOTO_COLLECTION)
-    })
+    })*/
+    @InjectLinks({})
     private List<Link> links;
     private CommentCollection comments;
     private PhotoCollection photos;

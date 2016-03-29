@@ -6,13 +6,21 @@ import edu.upc.eetac.dsa.secretsites.entity.AuthToken;
 import edu.upc.eetac.dsa.secretsites.entity.Photo;
 import edu.upc.eetac.dsa.secretsites.entity.PhotoCollection;
 import javassist.*;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import javax.imageio.ImageIO;
 import javax.ws.rs.*;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * Created by Marti on 27/03/2016.
@@ -24,20 +32,19 @@ public class PhotoResource {
     private SecurityContext securityContext;
 
     @POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(SecretSitesMediaType.SECRETSITES_PHOTO)
-    public Response uploadPhoto(@FormParam("pointid") String pointid, @Context UriInfo uriInfo) throws URISyntaxException {
+    public Response uploadPhoto(@FormDataParam("pointid") String pointid, @FormDataParam("image") InputStream image, @FormDataParam("image") FormDataContentDisposition fileDisposition, @Context UriInfo uriInfo) throws URISyntaxException {
         if(pointid == null)
             throw new BadRequestException("all parameters are mandatory");
         PhotoDAO photoDAO = new PhotoDAOImpl();
         Photo photo = null;
         AuthToken authenticationToken = null;
         try {
-            photo = photoDAO.uploadPhoto(pointid, securityContext.getUserPrincipal().getName());
+            photo = photoDAO.uploadPhoto(pointid, securityContext.getUserPrincipal().getName(), image);
         } catch (SQLException e) {
             throw new InternalServerErrorException();
         }
-        //TODO REALLY: SAVE THE PHOTO IN MEMORY AS JPG (PUT IN PATH)
         URI uri = new URI(uriInfo.getAbsolutePath().toString() + "/" + photo.getId());
         return Response.created(uri).type(SecretSitesMediaType.SECRETSITES_PHOTO).entity(photo).build();
     }
@@ -53,7 +60,6 @@ public class PhotoResource {
         } catch (SQLException e) {
             throw new InternalServerErrorException();
         }
-
         return photoCollection;
     }
 

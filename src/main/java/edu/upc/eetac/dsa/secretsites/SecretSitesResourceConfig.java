@@ -1,6 +1,7 @@
 package edu.upc.eetac.dsa.secretsites;
 
 import org.glassfish.jersey.linking.DeclarativeLinkingFeature;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
@@ -15,5 +16,6 @@ public class SecretSitesResourceConfig extends ResourceConfig {
         packages("edu.upc.eetac.dsa.beeter.cors");
         register(RolesAllowedDynamicFeature.class);
         register(DeclarativeLinkingFeature.class);
+        register(MultiPartFeature.class);
     }
 }

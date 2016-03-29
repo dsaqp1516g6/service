@@ -3,19 +3,24 @@ package edu.upc.eetac.dsa.secretsites.dao;
 import edu.upc.eetac.dsa.secretsites.entity.Photo;
 import edu.upc.eetac.dsa.secretsites.entity.PhotoCollection;
 
+import javax.imageio.ImageIO;
+import javax.ws.rs.InternalServerErrorException;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 
 /**
  * Created by Marti on 27/03/2016.
  */
 public class PhotoDAOImpl implements PhotoDAO {
     @Override
-    public Photo uploadPhoto(String pointid, String userid) throws SQLException {
+    public Photo uploadPhoto(String pointid, String userid, InputStream image) throws SQLException {
         Connection connection = null;
         PreparedStatement stmt = null;
         String id = null;
@@ -34,6 +39,7 @@ public class PhotoDAOImpl implements PhotoDAO {
             stmt.setString(2, pointid);
             stmt.setString(3, userid);
             stmt.executeUpdate();
+            uploadImageToServer(image, id);
         } catch (SQLException e) {
             throw e;
         } finally {
@@ -217,4 +223,22 @@ public class PhotoDAOImpl implements PhotoDAO {
         return Double.NaN;
     }
 
+
+    private boolean uploadImageToServer(InputStream file, String id) {
+        BufferedImage image = null;
+        try {
+            image = ImageIO.read(file);
+        } catch (IOException e) {
+            throw new InternalServerErrorException("Something has been wrong when reading the file.");
+        }
+        String filename = id.toString() + ".png";
+        try {
+            PropertyResourceBundle prb = (PropertyResourceBundle) ResourceBundle.getBundle("secretsites");
+            String path = prb.getString("secretSites.uploadFolderPath");
+            ImageIO.write(image, "png", new File(path + filename));
+        } catch (IOException e) {
+            throw new InternalServerErrorException("Something has been wrong when converting the file.");
+        }
+        return true;
+    }
 }

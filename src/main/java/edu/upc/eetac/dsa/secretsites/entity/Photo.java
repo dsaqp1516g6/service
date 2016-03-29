@@ -20,14 +20,15 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Photo {
     //TODO IS THIS CLASS CORRECT?
-    @InjectLinks({
+    /*@InjectLinks({
             @InjectLink(resource = SecretSitesRootAPIResource.class, style = InjectLink.Style.ABSOLUTE, rel = "home", title = "SecretSites Root API"),
             @InjectLink(resource = PhotoResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-photos", title = "Current photos"),
             @InjectLink(resource = PhotoResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-photo", title = "Create photo", type = MediaType.APPLICATION_FORM_URLENCODED),
             @InjectLink(resource = PhotoResource.class, method = "getPhoto", style = InjectLink.Style.ABSOLUTE, rel = "self photo", title = "Photo", bindings = @Binding(name = "id", value = "${instance.id}")),
             @InjectLink(resource = LoginResource.class, style = InjectLink.Style.ABSOLUTE, rel = "logout", title = "Logout"),
             @InjectLink(resource = UserResource.class, method = "getUser", style = InjectLink.Style.ABSOLUTE, rel = "user-profile", title = "User profile", bindings = @Binding(name = "id", value = "${instance.userid}")),
-    })
+    })*/
+    @InjectLinks({})
     private List<Link> links;
     private String id;
     private String pointid;

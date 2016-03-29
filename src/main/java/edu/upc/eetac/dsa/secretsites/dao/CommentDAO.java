@@ -11,7 +11,7 @@ import java.sql.SQLException;
 public interface CommentDAO {
     public Comment createComment(String pointid, String userid, String text) throws SQLException;
     public Comment getCommentById(String id) throws SQLException;
-    public CommentCollection getCommentsByInterestPointId(String pointid) throws SQLException;
+    public CommentCollection getCommentsByInterestPointId(String pointid, long timestamp, boolean before) throws SQLException;
     public Comment updateComment(String id, String text) throws SQLException;
     public boolean deleteComment(String id) throws SQLException;
 }

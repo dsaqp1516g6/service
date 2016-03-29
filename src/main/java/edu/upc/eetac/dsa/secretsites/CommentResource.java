@@ -42,11 +42,11 @@ public class CommentResource {
     @Path("interestpoint/{pointid}")
     @GET
     @Produces(SecretSitesMediaType.SECRETSITES_COMMENT_COLLECTION)
-    public CommentCollection getCommentsByInterestPointId(@PathParam("pointid") String pointid){
+    public CommentCollection getCommentsByInterestPointId(@PathParam("pointid") String pointid, @QueryParam("timestamp") long timestamp, @DefaultValue("true") @QueryParam("before") boolean before){
         CommentCollection commentCollection = null;
         CommentDAO commentDAO = new CommentDAOImpl();
         try {
-            commentCollection = commentDAO.getCommentsByInterestPointId(pointid);
+            commentCollection = commentDAO.getCommentsByInterestPointId(pointid, timestamp, before);
         } catch (SQLException e) {
             throw new InternalServerErrorException();
         }

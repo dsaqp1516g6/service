@@ -3,10 +3,7 @@ package edu.upc.eetac.dsa.secretsites.dao;
 import edu.upc.eetac.dsa.secretsites.entity.Comment;
 import edu.upc.eetac.dsa.secretsites.entity.CommentCollection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 /**
  * Created by Marti on 26/03/2016.
@@ -77,15 +74,19 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public CommentCollection getCommentsByInterestPointId(String pointid) throws SQLException {
+    public CommentCollection getCommentsByInterestPointId(String pointid, long timestamp, boolean before) throws SQLException {
         CommentCollection commentCollection = new CommentCollection();
 
         Connection connection = null;
         PreparedStatement stmt = null;
         try {
             connection = Database.getConnection();
-            stmt = connection.prepareStatement(CommentDAOQuery.GET_COMMENTS_BY_POINT_ID);
+            if(before)
+                stmt = connection.prepareStatement(CommentDAOQuery.GET_COMMENTS_BY_POINT_ID);
+            else
+                stmt = connection.prepareStatement(CommentDAOQuery.GET_COMMENTS_BY_POINT_ID_AFTER);
             stmt.setString(1, pointid);
+            stmt.setTimestamp(2, new Timestamp(timestamp));
 
             ResultSet rs = stmt.executeQuery();
             boolean first = true;

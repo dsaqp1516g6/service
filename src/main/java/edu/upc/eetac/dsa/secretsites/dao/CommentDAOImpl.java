@@ -102,7 +102,7 @@ public class CommentDAOImpl implements CommentDAO {
                     first = false;
                 }
                 commentCollection.setOldestTimestamp(comment.getLastModified());
-                commentCollection.getStings().add(comment);
+                commentCollection.getComments().add(comment);
             }
         } catch (SQLException e) {
             throw e;

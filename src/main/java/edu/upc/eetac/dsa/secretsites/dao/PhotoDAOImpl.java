@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Created by Marti on 27/03/2016.
@@ -92,7 +94,7 @@ public class PhotoDAOImpl implements PhotoDAO {
                 photo.setId(rs.getString("id"));
                 photo.setPointid(rs.getString("pointid"));
                 photo.setUserid(rs.getString("userid"));
-                photo.setUploadTimestamp((rs.getTimestamp("creation_timestamp").getTime()));
+                photo.setUploadTimestamp((rs.getTimestamp("upload_timestamp").getTime()));
                 photo.setRating((new InterestPointDAOImpl()).getRating(photo.getId(), false));
                 if (first) {
                     photoCollection.setNewestTimestamp(photo.getUploadTimestamp());
@@ -131,25 +133,80 @@ public class PhotoDAOImpl implements PhotoDAO {
     }
 
     @Override
-    public Photo getBestVotedPhotoByPointId(String pointid) throws SQLException {
-        Photo photo = null;
+    public Photo getBestVotedPhoto(PhotoCollection photos) throws SQLException {
+        Collections.sort(photos.getPhotos(), new Comparator<Photo>() {
+            @Override
+            public int compare(Photo lhs, Photo rhs) {
+                return lhs.getRating() > rhs.getRating() ? -1 : (lhs.getRating() > rhs.getRating()) ? 1 : 0;
+            }
+        });
+        return (photos.getPhotos().size() != 0) ? photos.getPhotos().get(0) : null;
+    }
 
+    @Override
+    public Photo setPhotoRating(String id, String userid, float rating) throws SQLException {
         Connection connection = null;
         PreparedStatement stmt = null;
         try {
             connection = Database.getConnection();
 
-            stmt = connection.prepareStatement(PhotoDAOQuery.GET_RATING_PHOTO);
-            stmt.setString(1, pointid);
+            if(Double.isNaN(getPhotoUserRating(id, userid))) {
+                stmt = connection.prepareStatement(PhotoDAOQuery.SET_PHOTO_RATING);
+                stmt.setString(1, id);
+                stmt.setString(2, userid);
+                stmt.setFloat(3, rating);
+            }
+            else {
+                stmt = connection.prepareStatement(PhotoDAOQuery.UPDATE_PHOTO_RATING);
+                stmt.setFloat(1, rating);
+                stmt.setString(2, id);
+                stmt.setString(3, userid);
+            }
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (stmt != null) stmt.close();
+            if (connection != null) connection.close();
+        }
+        return getPhotoById(id);
+    }
+
+    @Override
+    public boolean deletePhotoRating(String id, String userid) throws SQLException {
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        try {
+            connection = Database.getConnection();
+
+            stmt = connection.prepareStatement(PhotoDAOQuery.DELETE_PHOTO_RATING);
+            stmt.setString(1, id);
+            stmt.setString(2, userid);
+
+            int rows = stmt.executeUpdate();
+            return (rows == 1);
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (stmt != null) stmt.close();
+            if (connection != null) connection.close();
+        }
+    }
+
+    @Override
+    public double getPhotoUserRating(String id, String userid) throws SQLException {
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        try {
+            connection = Database.getConnection();
+
+            stmt = connection.prepareStatement(PhotoDAOQuery.GET_PHOTO_RATING_USER);
+            stmt.setString(1, id);
+            stmt.setString(2, userid);
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                photo = new Photo();
-                photo.setId(rs.getString("id"));
-                photo.setPointid(rs.getString("pointid"));
-                photo.setUserid(rs.getString("userid"));
-                photo.setUploadTimestamp(rs.getTimestamp("upload_timestamp").getTime());
-                photo.setRating(rs.getFloat("rating"));
+                return rs.getFloat("rating");
             }
         } catch (SQLException e) {
             throw e;
@@ -157,6 +214,7 @@ public class PhotoDAOImpl implements PhotoDAO {
             if (stmt != null) stmt.close();
             if (connection != null) connection.close();
         }
-        return photo;
+        return Double.NaN;
     }
+
 }

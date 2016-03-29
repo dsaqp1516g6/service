@@ -2,5 +2,25 @@
   {
     "path": "myresource",
     "methods": ["GET"]
+  },
+  {
+    "path": "users",
+    "methods": ["POST"]
+  },
+  {
+    "path": "(?i)users/([0-9a-f]{32})?",
+    "methods": ["GET"]
+  },
+  {
+    "path": "(?i)interestpoints/?([0-9a-f]{32})?",
+    "methods": ["GET"]
+  },
+  {
+    "path": "(?i)comments/?([0-9a-f]{32})?",
+    "methods": ["GET"]
+  },
+  {
+    "path": "login",
+    "methods": ["POST"]
   }
 ]

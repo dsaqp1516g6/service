@@ -13,6 +13,8 @@ import java.util.List;
 public class InterestPoint {
     @InjectLinks({})
     private List<Link> links;
+    private CommentCollection comments;
+    private PhotoCollection photos;
     private String id;
     private String name;
     private double longitude;
@@ -23,12 +25,29 @@ public class InterestPoint {
     private long creationTimestamp;
     //TODO LAST MODIFIED NECESSARY? (NO UPDATES)
 
+
     public List<Link> getLinks() {
         return links;
     }
 
     public void setLinks(List<Link> links) {
         this.links = links;
+    }
+
+    public CommentCollection getComments() {
+        return comments;
+    }
+
+    public void setComments(CommentCollection comments) {
+        this.comments = comments;
+    }
+
+    public PhotoCollection getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(PhotoCollection photos) {
+        this.photos = photos;
     }
 
     public String getId() {

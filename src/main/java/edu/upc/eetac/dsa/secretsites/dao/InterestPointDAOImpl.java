@@ -42,7 +42,7 @@ public class InterestPointDAOImpl implements InterestPointDAO {
                 connection.close();
             }
         }
-        return getInterestPointById(id, "NULL");
+        return getInterestPointById(id, "Unknown");
     }
 
     @Override
@@ -63,11 +63,13 @@ public class InterestPointDAOImpl implements InterestPointDAO {
                 point.setId(rs.getString("id"));
                 point.setName(rs.getString("name"));
                 point.setLongitude(rs.getDouble("longitude"));
-                point.setLongitude(rs.getDouble("latitude"));
+                point.setLatitude(rs.getDouble("latitude"));
                 point.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
                 point.setStatus(getInterestPointStatus(id, userid));
                 point.setRating(getRating(id, true));
-                point.setBestPhoto((new PhotoDAOImpl()).getBestVotedPhotoByPointId(id)); //TODO to get the best voted photo in a point
+                point.setComments((new CommentDAOImpl()).getCommentsByInterestPointId(id));
+                point.setPhotos((new PhotoDAOImpl()).getPhotosByPointId(id));  //TODO ORDER BY SOMETHING?¿
+                point.setBestPhoto((new PhotoDAOImpl()).getBestVotedPhoto(point.getPhotos())); //TODO to get the best voted photo in a point
             }
         } catch (SQLException e) {
             throw e;
@@ -78,6 +80,7 @@ public class InterestPointDAOImpl implements InterestPointDAO {
         return point;
     }
 
+    //TODO (REALLY) getInterestPointsByArea
     @Override
     public InterestPointCollection getInterestPoints(String userid) throws SQLException {
         InterestPointCollection pointCollection = new InterestPointCollection();
@@ -99,7 +102,6 @@ public class InterestPointDAOImpl implements InterestPointDAO {
                 point.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
                 point.setStatus(getInterestPointStatus(point.getId(), userid));
                 point.setRating(getRating(point.getId(), true));
-                point.setBestPhoto((new PhotoDAOImpl()).getBestVotedPhotoByPointId(point.getId())); //TODO to get the best voted photo in a point too
                 if (first) {
                     pointCollection.setNewestTimestamp(point.getCreationTimestamp());
                     first = false;
@@ -115,7 +117,45 @@ public class InterestPointDAOImpl implements InterestPointDAO {
         }
         return pointCollection;
     }
-    //TODO (REALLY) getInterestPointsByArea, getInterestPointsByVisited, getInterestPointsByPendent
+
+    @Override
+    public InterestPointCollection getInterestPointsByStatus(String userid, String status) throws SQLException {
+        InterestPointCollection pointCollection = new InterestPointCollection();
+
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        try {
+            connection = Database.getConnection();
+            stmt = connection.prepareStatement(InterestPointDAOQuery.GET_POINTS_BY_STATUS);
+            stmt.setString(1, userid);
+            stmt.setString(2, status);
+
+            ResultSet rs = stmt.executeQuery();
+            boolean first = true;
+            while (rs.next()) {
+                InterestPoint point = new InterestPoint();
+                point.setId(rs.getString("id"));
+                point.setName(rs.getString("name"));
+                point.setLongitude(rs.getDouble("longitude"));
+                point.setLatitude(rs.getDouble("latitude"));
+                point.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
+                point.setStatus(status);
+                point.setRating(getRating(point.getId(), true));
+                if (first) {
+                    pointCollection.setNewestTimestamp(point.getCreationTimestamp());
+                    first = false;
+                }
+                pointCollection.setOldestTimestamp(point.getCreationTimestamp());
+                pointCollection.getInterestPoints().add(point);
+            }
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (stmt != null) stmt.close();
+            if (connection != null) connection.close();
+        }
+        return pointCollection;
+    }
 
     @Override
     public InterestPoint updateInterestPoint(String id, String userid, String name, double longitude, double latitude) throws SQLException {
@@ -165,7 +205,107 @@ public class InterestPointDAOImpl implements InterestPointDAO {
         }
     }
 
+    @Override
+    public InterestPoint setInterestPointRating(String id, String userid, float rating) throws SQLException {
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        try {
+            connection = Database.getConnection();
 
+            if(Double.isNaN(getInterestPointUserRating(id, userid))) {
+                stmt = connection.prepareStatement(InterestPointDAOQuery.SET_POINT_RATING);
+                stmt.setString(1, id);
+                stmt.setString(2, userid);
+                stmt.setFloat(3, rating);
+            }
+            else {
+                stmt = connection.prepareStatement(InterestPointDAOQuery.UPDATE_POINT_RATING);
+                stmt.setFloat(1, rating);
+                stmt.setString(2, id);
+                stmt.setString(3, userid);
+            }
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (stmt != null) stmt.close();
+            if (connection != null) connection.close();
+        }
+        return getInterestPointById(id, userid);
+    }
+
+    @Override
+    public boolean deleteInterestPointRating(String id, String userid) throws SQLException {
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        try {
+            connection = Database.getConnection();
+
+            stmt = connection.prepareStatement(InterestPointDAOQuery.DELETE_POINT_RATING);
+            stmt.setString(1, id);
+            stmt.setString(2, userid);
+
+            int rows = stmt.executeUpdate();
+            return (rows == 1);
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (stmt != null) stmt.close();
+            if (connection != null) connection.close();
+        }
+    }
+
+    @Override
+    public InterestPoint setInterestPointStatus(String id, String userid, String status) throws SQLException {
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        try {
+            connection = Database.getConnection();
+
+            if(getInterestPointStatus(id, userid).compareTo("Unknown") == 0) {
+                stmt = connection.prepareStatement(InterestPointDAOQuery.SET_POINT_STATUS);
+                stmt.setString(1, id);
+                stmt.setString(2, userid);
+                stmt.setString(3, status);
+            }
+            else {
+                stmt = connection.prepareStatement(InterestPointDAOQuery.UPDATE_POINT_STATUS);
+                stmt.setString(1, status);
+                stmt.setString(2, id);
+                stmt.setString(3, userid);
+            }
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (stmt != null) stmt.close();
+            if (connection != null) connection.close();
+        }
+        return getInterestPointById(id, userid);
+    }
+
+    @Override
+    public boolean deleteInterestPointStatus(String id, String userid) throws SQLException {
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        try {
+            connection = Database.getConnection();
+
+            stmt = connection.prepareStatement(InterestPointDAOQuery.DELETE_POINT_STATUS);
+            stmt.setString(1, id);
+            stmt.setString(2, userid);
+
+            int rows = stmt.executeUpdate();
+            return (rows == 1);
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (stmt != null) stmt.close();
+            if (connection != null) connection.close();
+        }
+    }
+
+    @Override
     public String getInterestPointStatus(String id, String userid) throws SQLException {
         Connection connection = null;
         PreparedStatement stmt = null;
@@ -174,20 +314,45 @@ public class InterestPointDAOImpl implements InterestPointDAO {
 
             stmt = connection.prepareStatement(InterestPointDAOQuery.GET_POINT_STATUS);
             stmt.setString(1, id);
-            stmt.setString(1, userid);
+            stmt.setString(2, userid);
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return rs.getString("status");
             }
-            return "";
         } catch (SQLException e) {
             throw e;
         } finally {
             if (stmt != null) stmt.close();
             if (connection != null) connection.close();
         }
+        return "Unknown";
     }
+
+    @Override
+    public double getInterestPointUserRating(String id, String userid) throws SQLException {
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        try {
+            connection = Database.getConnection();
+
+            stmt = connection.prepareStatement(InterestPointDAOQuery.GET_POINT_RATING_USER);
+            stmt.setString(1, id);
+            stmt.setString(2, userid);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getFloat("rating");
+            }
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (stmt != null) stmt.close();
+            if (connection != null) connection.close();
+        }
+        return Double.NaN;
+    }
+
 
     public float getRating(String id, boolean isPoint) throws SQLException {
         int numOfRatings = 0;

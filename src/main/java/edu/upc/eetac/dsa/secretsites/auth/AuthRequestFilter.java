@@ -25,8 +25,10 @@ import java.util.List;
 public class AuthRequestFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        if(Authorized.getInstance().isAuthorized(requestContext))
-            return;
+        if(Authorized.getInstance().isAuthorized(requestContext)) {
+            if(requestContext.getHeaderString("X-Auth-Token") == null)
+                return;
+        }
         final boolean secure = requestContext.getUriInfo().getAbsolutePath().getScheme().equals("https");
         String token = requestContext.getHeaderString("X-Auth-Token");
         if (token == null)

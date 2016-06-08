@@ -2,11 +2,14 @@ package edu.upc.eetac.dsa.secretsites.dao;
 
 import edu.upc.eetac.dsa.secretsites.entity.InterestPoint;
 import edu.upc.eetac.dsa.secretsites.entity.InterestPointCollection;
+import edu.upc.eetac.dsa.secretsites.entity.PhotoCollection;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 
 /**
  * Created by Marti on 24/03/2016.
@@ -102,6 +105,48 @@ public class InterestPointDAOImpl implements InterestPointDAO {
                 point.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
                 point.setStatus(getInterestPointStatus(point.getId(), userid));
                 point.setRating(getRating(point.getId(), true));
+                PhotoCollection photosCollection = (new PhotoDAOImpl()).getPhotosByPointId(point.getId());  //TODO ORDER BY SOMETHING?¿
+                point.setBestPhoto((new PhotoDAOImpl()).getBestVotedPhoto(photosCollection));
+                if (first) {
+                    pointCollection.setNewestTimestamp(point.getCreationTimestamp());
+                    first = false;
+                }
+                pointCollection.setOldestTimestamp(point.getCreationTimestamp());
+                pointCollection.getInterestPoints().add(point);
+            }
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (stmt != null) stmt.close();
+            if (connection != null) connection.close();
+        }
+        return pointCollection;
+    }
+
+    @Override
+    public InterestPointCollection getInterestPointsByName(String userid, String pointName) throws SQLException {
+        InterestPointCollection pointCollection = new InterestPointCollection();
+
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        try {
+            connection = Database.getConnection();
+            stmt = connection.prepareStatement(InterestPointDAOQuery.GET_POINTS_BY_NAME);
+            stmt.setString(1, "%" + pointName + "%");
+
+            ResultSet rs = stmt.executeQuery();
+            boolean first = true;
+            while (rs.next()) {
+                InterestPoint point = new InterestPoint();
+                point.setId(rs.getString("id"));
+                point.setName(rs.getString("name"));
+                point.setLatitude(rs.getDouble("latitude"));
+                point.setLongitude(rs.getDouble("longitude"));
+                point.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
+                point.setStatus(getInterestPointStatus(point.getId(), userid));
+                point.setRating(getRating(point.getId(), true));
+                PhotoCollection photosCollection = (new PhotoDAOImpl()).getPhotosByPointId(point.getId());  //TODO ORDER BY SOMETHING?¿
+                point.setBestPhoto((new PhotoDAOImpl()).getBestVotedPhoto(photosCollection));
                 if (first) {
                     pointCollection.setNewestTimestamp(point.getCreationTimestamp());
                     first = false;
@@ -141,6 +186,8 @@ public class InterestPointDAOImpl implements InterestPointDAO {
                 point.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
                 point.setStatus(status);
                 point.setRating(getRating(point.getId(), true));
+                PhotoCollection photosCollection = (new PhotoDAOImpl()).getPhotosByPointId(point.getId());  //TODO ORDER BY SOMETHING?¿
+                point.setBestPhoto((new PhotoDAOImpl()).getBestVotedPhoto(photosCollection));
                 if (first) {
                     pointCollection.setNewestTimestamp(point.getCreationTimestamp());
                     first = false;
@@ -374,7 +421,12 @@ public class InterestPointDAOImpl implements InterestPointDAO {
                 totalRatingValue += rs.getFloat("rating");
                 numOfRatings++;
             }
-            return (totalRatingValue/numOfRatings);
+            if(numOfRatings != 0) {
+                BigDecimal bd = new BigDecimal(Float.toString(totalRatingValue / numOfRatings));
+                bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
+                return bd.floatValue();
+            }
+            return 0.00f;
         } catch (SQLException e) {
             throw e;
         } finally {

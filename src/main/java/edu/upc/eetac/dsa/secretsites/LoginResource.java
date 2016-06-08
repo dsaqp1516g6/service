@@ -34,9 +34,9 @@ public class LoginResource {
             UserDAO userDAO = new UserDAOImpl();
             user = userDAO.getUserByUsername(username);
             if(user == null)
-                throw new BadRequestException("username " + username + " not found.");
+                throw new BadRequestException("The username '" + username + "' do not exist");
             if(!userDAO.checkPassword(user.getId(), password))
-                throw new BadRequestException("incorrect password");
+                throw new BadRequestException("The password is incorrect");
 
             AuthTokenDAO authTokenDAO = new AuthTokenDAOImpl();
             authTokenDAO.deleteToken(user.getId());

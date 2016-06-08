@@ -33,6 +33,7 @@ public class Comment {
     private String id;
     private String pointid;
     private String userid;
+    private String username;
     private String text;
     private long creationTimestamp;
     private long lastModified;
@@ -67,6 +68,14 @@ public class Comment {
 
     public void setUserid(String userid) {
         this.userid = userid;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getText() {

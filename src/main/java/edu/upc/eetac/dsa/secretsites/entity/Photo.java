@@ -19,22 +19,20 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Photo {
-    //TODO IS THIS CLASS CORRECT?
-    /*@InjectLinks({
+    @InjectLinks({
             @InjectLink(resource = SecretSitesRootAPIResource.class, style = InjectLink.Style.ABSOLUTE, rel = "home", title = "SecretSites Root API"),
             @InjectLink(resource = PhotoResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-photos", title = "Current photos"),
             @InjectLink(resource = PhotoResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-photo", title = "Create photo", type = MediaType.APPLICATION_FORM_URLENCODED),
-            @InjectLink(resource = PhotoResource.class, method = "getPhoto", style = InjectLink.Style.ABSOLUTE, rel = "self photo", title = "Photo", bindings = @Binding(name = "id", value = "${instance.id}")),
-            @InjectLink(resource = LoginResource.class, style = InjectLink.Style.ABSOLUTE, rel = "logout", title = "Logout"),
-            @InjectLink(resource = UserResource.class, method = "getUser", style = InjectLink.Style.ABSOLUTE, rel = "user-profile", title = "User profile", bindings = @Binding(name = "id", value = "${instance.userid}")),
-    })*/
-    @InjectLinks({})
+            @InjectLink(resource = PhotoResource.class, method = "getPhoto", style = InjectLink.Style.ABSOLUTE, rel = "self-photo", title = "Photo", bindings = @Binding(name = "id", value = "${instance.id}")),
+    })
     private List<Link> links;
     private String id;
     private String pointid;
     private String userid;
-    private BufferedImage photo;  //TODO Best way to save a image?
-    private float rating; //TODO this okey too?
+    private String username;
+    private String url;
+    private float myRating;
+    private float totalRating;
     private long uploadTimestamp;
 
     public List<Link> getLinks() {
@@ -69,20 +67,36 @@ public class Photo {
         this.userid = userid;
     }
 
-    public BufferedImage getPhoto() {
-        return photo;
+    public String getUsername() {
+        return username;
     }
 
-    public void setPhoto(BufferedImage photo) {
-        this.photo = photo;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public float getRating() {
-        return rating;
+    public String getUrl() {
+        return url;
     }
 
-    public void setRating(float rating) {
-        this.rating = rating;
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public float getMyRating() {
+        return myRating;
+    }
+
+    public void setMyRating(float myRating) {
+        this.myRating = myRating;
+    }
+
+    public float getTotalRating() {
+        return totalRating;
+    }
+
+    public void setTotalRating(float totalRating) {
+        this.totalRating = totalRating;
     }
 
     public long getUploadTimestamp() {

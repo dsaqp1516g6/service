@@ -48,10 +48,28 @@ public class InterestPointResource {
         InterestPointDAO pointDAO = new InterestPointDAOImpl();
         Principal principal = securityContext.getUserPrincipal();
         try {
-            if(principal == null)
+             if(principal == null)
                 pointCollection = pointDAO.getInterestPoints("Unknown");
             else
                 pointCollection = pointDAO.getInterestPoints(principal.getName());
+        } catch (SQLException e) {
+            throw new InternalServerErrorException();
+        }
+        return pointCollection;
+    }
+
+    @Path("/search/{name}")
+    @GET
+    @Produces(SecretSitesMediaType.SECRETSITES_POINT_COLLECTION)
+    public InterestPointCollection getInterestPointByNameAndArea(@PathParam("name") String name) {
+        InterestPointCollection pointCollection = null;
+        InterestPointDAO pointDAO = new InterestPointDAOImpl();
+        Principal principal = securityContext.getUserPrincipal();
+        try {
+            if(principal == null)
+                pointCollection = pointDAO.getInterestPointsByName("Unknown", name);
+            else
+                pointCollection = pointDAO.getInterestPointsByName(principal.getName(), name);
         } catch (SQLException e) {
             throw new InternalServerErrorException();
         }

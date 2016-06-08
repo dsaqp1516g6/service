@@ -72,6 +72,8 @@ public class UserResource {
         if(!userid.equals(id))
             throw new ForbiddenException("operation not allowed");
 
+        //TODO REALLY: THE ADMIN CAN UPDATE USER TOO
+
         UserDAO userDAO = new UserDAOImpl();
         try {
             user = userDAO.updateProfile(userid, user.getEmail(), user.getFullname());
@@ -89,6 +91,9 @@ public class UserResource {
         String userid = securityContext.getUserPrincipal().getName();
         if(!userid.equals(id))
             throw new ForbiddenException("operation not allowed");
+
+        //TODO REALLY: THE ADMIN CAN DELETE USER TOO
+
         UserDAO userDAO = new UserDAOImpl();
         try {
             if(!userDAO.deleteUser(id))

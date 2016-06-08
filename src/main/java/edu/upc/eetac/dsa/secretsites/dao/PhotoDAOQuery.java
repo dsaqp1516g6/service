@@ -5,8 +5,10 @@ package edu.upc.eetac.dsa.secretsites.dao;
  */
 public interface PhotoDAOQuery {
     public final static String UPLOAD_PHOTO = "insert into photos (id, pointid, userid) values (UNHEX(?), unhex(?), unhex(?))";
-    public final static String GET_PHOTO_BY_ID = "select hex(id) as id, hex(pointid) as pointid, hex(userid) as userid, upload_timestamp from photos where id=unhex(?)";
-    public final static String GET_PHOTOS_BY_POINT_ID = "select hex(id) as id, hex(pointid) as pointid, hex(userid) as userid, upload_timestamp from photos where pointid=unhex(?)";
+    public final static String GET_PHOTO_BY_ID = "select hex(photos.id) as id, hex(pointid) as pointid, hex(userid) as userid, upload_timestamp, users.username as username from photos join users " +
+            "on photos.userid = users.id where id=unhex(?)";
+    public final static String GET_PHOTOS_BY_POINT_ID = "select hex(photos.id) as id, hex(pointid) as pointid, hex(userid) as userid, upload_timestamp, users.username as username from photos join users " +
+            "on photos.userid = users.id where pointid=unhex(?)";
     public final static String DELETE_PHOTO = "delete from photos where id=unhex(?)";
 
     public final static String GET_PHOTO_RATING = "select hex(photoid) as id, hex(userid) as userid, rating from rating_photos where photoid = unhex(?)";

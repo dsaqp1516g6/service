@@ -14,14 +14,13 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User {
-    /*@InjectLinks({
+    @InjectLinks({
             @InjectLink(resource = SecretSitesRootAPIResource.class, style = InjectLink.Style.ABSOLUTE, rel = "home", title = "Beeter Root API"),
             @InjectLink(resource = InterestPointResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-points", title = "Current points", type= SecretSitesMediaType.SECRETSITES_POINT_COLLECTION),
             @InjectLink(resource = LoginResource.class, style = InjectLink.Style.ABSOLUTE, rel = "logout", title = "Logout"),
             @InjectLink(resource = InterestPointResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-point", title = "Create point", type=SecretSitesMediaType.SECRETSITES_POINT),
-            @InjectLink(resource = UserResource.class, method = "getUser", style = InjectLink.Style.ABSOLUTE, rel = "self user-profile", title = "User profile", type=SecretSitesMediaType.SECRETSITES_USER, bindings = @Binding(name = "id", value = "${instance.id}"))
-    })*/
-    @InjectLinks({})
+            @InjectLink(resource = UserResource.class, method = "getUser", style = InjectLink.Style.ABSOLUTE, rel = "self-user-profile", title = "User profile", type=SecretSitesMediaType.SECRETSITES_USER, bindings = @Binding(name = "id", value = "${instance.id}"))
+    })
     private List<Link> links;
     private String id;
     private String username;

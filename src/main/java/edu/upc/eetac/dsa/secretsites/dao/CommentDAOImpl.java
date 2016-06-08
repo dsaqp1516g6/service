@@ -61,6 +61,7 @@ public class CommentDAOImpl implements CommentDAO {
                 comment.setPointid(rs.getString("pointid"));
                 comment.setUserid(rs.getString("userid"));
                 comment.setText(rs.getString("text"));
+                comment.setUsername(rs.getString("username"));
                 comment.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
                 comment.setLastModified(rs.getTimestamp("last_modified").getTime());
             }
@@ -96,6 +97,7 @@ public class CommentDAOImpl implements CommentDAO {
                 comment.setPointid(rs.getString("pointid"));
                 comment.setUserid(rs.getString("userid"));
                 comment.setText(rs.getString("text"));
+                comment.setUsername(rs.getString("username"));
                 comment.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
                 comment.setLastModified(rs.getTimestamp("last_modified").getTime());
                 if (first) {

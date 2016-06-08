@@ -14,9 +14,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -122,7 +120,7 @@ public class PhotoResource {
         String userid = securityContext.getUserPrincipal().getName();
         PhotoDAO photoDAO = new PhotoDAOImpl();
         try {
-            if(Double.isNaN(photoDAO.getPhotoUserRating(id, userid))) //TODO Correct way to catch the error?
+            if(Float.isNaN(photoDAO.getPhotoUserRating(id, userid))) //TODO Correct way to catch the error?
                 throw new NotFoundException("Photo rating with photoid = "+id+" and userid = "+userid+" doesn't exist");
             photoDAO.deletePhotoRating(id, userid);
         } catch (SQLException e) {

@@ -6,6 +6,7 @@ package edu.upc.eetac.dsa.secretsites.dao;
 public interface InterestPointDAOQuery {
     public final static String CREATE_POINT = "insert into interestpoints (id, name, longitude, latitude) values (UNHEX(?), ?, ?, ?)";
     public final static String GET_POINT_BY_ID = "select hex(id) as id, name, longitude, latitude, creation_timestamp from interestpoints where id=unhex(?)";
+    public final static String GET_POINTS_BY_NAME = "select hex(id) as id, name, longitude, latitude, creation_timestamp from interestpoints where name LIKE ?";
     public final static String GET_POINTS = "select hex(id) as id, name, longitude, latitude, creation_timestamp from interestpoints";
     public final static String UPDATE_POINT = "update interestpoints set name=?, longitude=?, latitude=? where id=unhex(?) ";
     public final static String DELETE_POINT = "delete from interestpoints where id=unhex(?)";

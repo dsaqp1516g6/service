@@ -22,5 +22,13 @@
   {
     "path": "login",
     "methods": ["POST"]
+  },
+  {
+    "path": "(?i)apimaps/?(.*?)",
+    "methods": ["GET"]
+  },
+  {
+    "path": "(?i)photos/inputStream/?(.*?)",
+    "methods": ["GET"]
   }
 ]

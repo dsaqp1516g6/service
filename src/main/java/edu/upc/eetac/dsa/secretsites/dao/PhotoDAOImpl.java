@@ -5,10 +5,9 @@ import edu.upc.eetac.dsa.secretsites.entity.PhotoCollection;
 
 import javax.imageio.ImageIO;
 import javax.ws.rs.InternalServerErrorException;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -70,8 +69,11 @@ public class PhotoDAOImpl implements PhotoDAO {
                 photo.setId(rs.getString("id"));
                 photo.setPointid(rs.getString("pointid"));
                 photo.setUserid(rs.getString("userid"));
-                photo.setUploadTimestamp(rs.getTimestamp("upload_timestamp").getTime());
-                photo.setRating((new InterestPointDAOImpl()).getRating(id, false));
+                photo.setUsername(rs.getString("username"));
+                photo.setUploadTimestamp((rs.getTimestamp("upload_timestamp").getTime()));
+                photo.setTotalRating((new InterestPointDAOImpl()).getRating(photo.getId(), false));
+                photo.setMyRating(getPhotoUserRating(photo.getId(), photo.getPointid()));
+                photo.setUrl(photo.getId().toLowerCase() + ".png");
             }
         } catch (SQLException e) {
             throw e;
@@ -100,8 +102,11 @@ public class PhotoDAOImpl implements PhotoDAO {
                 photo.setId(rs.getString("id"));
                 photo.setPointid(rs.getString("pointid"));
                 photo.setUserid(rs.getString("userid"));
+                photo.setUsername(rs.getString("username"));
                 photo.setUploadTimestamp((rs.getTimestamp("upload_timestamp").getTime()));
-                photo.setRating((new InterestPointDAOImpl()).getRating(photo.getId(), false));
+                photo.setTotalRating((new InterestPointDAOImpl()).getRating(photo.getId(), false));
+                photo.setMyRating(getPhotoUserRating(photo.getId(), pointid));
+                photo.setUrl(photo.getId().toLowerCase() + ".png");
                 if (first) {
                     photoCollection.setNewestTimestamp(photo.getUploadTimestamp());
                     first = false;
@@ -143,7 +148,7 @@ public class PhotoDAOImpl implements PhotoDAO {
         Collections.sort(photos.getPhotos(), new Comparator<Photo>() {
             @Override
             public int compare(Photo lhs, Photo rhs) {
-                return lhs.getRating() > rhs.getRating() ? -1 : (lhs.getRating() > rhs.getRating()) ? 1 : 0;
+                return lhs.getTotalRating() > rhs.getTotalRating() ? -1 : (lhs.getTotalRating() > rhs.getTotalRating()) ? 1 : 0;
             }
         });
         return (photos.getPhotos().size() != 0) ? photos.getPhotos().get(0) : null;
@@ -156,7 +161,7 @@ public class PhotoDAOImpl implements PhotoDAO {
         try {
             connection = Database.getConnection();
 
-            if(Double.isNaN(getPhotoUserRating(id, userid))) {
+            if(Float.isNaN(getPhotoUserRating(id, userid))) {
                 stmt = connection.prepareStatement(PhotoDAOQuery.SET_PHOTO_RATING);
                 stmt.setString(1, id);
                 stmt.setString(2, userid);
@@ -200,7 +205,7 @@ public class PhotoDAOImpl implements PhotoDAO {
     }
 
     @Override
-    public double getPhotoUserRating(String id, String userid) throws SQLException {
+    public float getPhotoUserRating(String id, String userid) throws SQLException {
         Connection connection = null;
         PreparedStatement stmt = null;
         try {
@@ -220,25 +225,38 @@ public class PhotoDAOImpl implements PhotoDAO {
             if (stmt != null) stmt.close();
             if (connection != null) connection.close();
         }
-        return Double.NaN;
+        return Float.NaN;
     }
 
 
     private boolean uploadImageToServer(InputStream file, String id) {
         BufferedImage image = null;
+        BufferedImage imageResized = null;
         try {
             image = ImageIO.read(file);
+            //Resize image for less KB
+            imageResized = resize(image, image.getWidth() / 2, image.getHeight() / 2);
         } catch (IOException e) {
             throw new InternalServerErrorException("Something has been wrong when reading the file.");
         }
-        String filename = id.toString() + ".png";
+        String filename = "img\\" + id.toString() + ".jpg";
         try {
-            PropertyResourceBundle prb = (PropertyResourceBundle) ResourceBundle.getBundle("secretsites");
-            String path = prb.getString("secretSites.uploadFolderPath");
-            ImageIO.write(image, "png", new File(path + filename));
+            //ImageIO.write(image, "jpg", new File(filename));
+            ImageIO.write(imageResized, "jpg", new File(filename));
         } catch (IOException e) {
             throw new InternalServerErrorException("Something has been wrong when converting the file.");
         }
         return true;
+    }
+
+    private BufferedImage resize(BufferedImage original, int newWidth, int newHeight) {
+        BufferedImage resized = new BufferedImage(newWidth, newHeight, original.getType());
+        Graphics2D g = resized.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(original, 0, 0, newWidth, newHeight, 0, 0, original.getWidth(),
+                original.getHeight(), null);
+        g.dispose();
+        return resized;
     }
 }

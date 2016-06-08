@@ -16,7 +16,7 @@ public interface PhotoDAO {
     public boolean deletePhoto(String id) throws SQLException;
 
     public Photo getBestVotedPhoto(PhotoCollection photos) throws SQLException;
-    public double getPhotoUserRating(String id, String userid) throws SQLException;
+    public float getPhotoUserRating(String id, String userid) throws SQLException;
     public Photo setPhotoRating(String id, String userid, float rating) throws SQLException;
     public boolean deletePhotoRating(String id, String userid) throws SQLException;
 }

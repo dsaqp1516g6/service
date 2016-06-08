@@ -1,6 +1,5 @@
 # Maven
 target/
-img/
 **/target/
 pom.xml.tag
 pom.xml.releaseBackup

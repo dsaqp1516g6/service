@@ -13,4 +13,5 @@ public class SecretSitesMediaType {
     public final static String SECRETSITES_PHOTO = "application/vnd.dsa.secretsites.photo+json";
     public final static String SECRETSITES_PHOTO_COLLECTION = "application/vnd.dsa.secretsites.photo.collection+json";
     public final static String SECRETSITES_ROOT = "application/vnd.dsa.secretsites.root+json";
+    public final static String SECRETSITES_AREA = "application/vnd.dsa.secretsites.area+json";
 }

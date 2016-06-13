@@ -3,6 +3,7 @@ package edu.upc.eetac.dsa.secretsites;
 import edu.upc.eetac.dsa.secretsites.auth.UserInfo;
 import edu.upc.eetac.dsa.secretsites.dao.InterestPointDAO;
 import edu.upc.eetac.dsa.secretsites.dao.InterestPointDAOImpl;
+import edu.upc.eetac.dsa.secretsites.entity.Area;
 import edu.upc.eetac.dsa.secretsites.entity.AuthToken;
 import edu.upc.eetac.dsa.secretsites.entity.InterestPoint;
 import edu.upc.eetac.dsa.secretsites.entity.InterestPointCollection;
@@ -26,14 +27,14 @@ public class InterestPointResource {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(SecretSitesMediaType.SECRETSITES_POINT)
-    public Response createInterestPoint(@FormParam("name") String name, @FormParam("longitude") double longitude, @FormParam("latitude") double latitude, @Context UriInfo uriInfo) throws URISyntaxException {
-        if(name == null || Double.isNaN(longitude) ||  Double.isNaN(latitude))
+    public Response createInterestPoint(@FormParam("name") String name, @FormParam("longitude") double longitude, @FormParam("latitude") double latitude, @FormParam("description") String description, @Context UriInfo uriInfo) throws URISyntaxException {
+        if(name == null || Double.isNaN(longitude) ||  Double.isNaN(latitude) ||  description == null)
             throw new BadRequestException("all parameters are mandatory");
         InterestPointDAO pointDAO = new InterestPointDAOImpl();
         InterestPoint point = null;
         AuthToken authenticationToken = null;
         try {
-            point = pointDAO.createInterestPoint(name, longitude, latitude);
+            point = pointDAO.createInterestPoint(name, longitude, latitude, description);
         } catch (SQLException e) {
             throw new InternalServerErrorException();
         }
@@ -52,24 +53,6 @@ public class InterestPointResource {
                 pointCollection = pointDAO.getInterestPoints("Unknown");
             else
                 pointCollection = pointDAO.getInterestPoints(principal.getName());
-        } catch (SQLException e) {
-            throw new InternalServerErrorException();
-        }
-        return pointCollection;
-    }
-
-    @Path("/search/{name}")
-    @GET
-    @Produces(SecretSitesMediaType.SECRETSITES_POINT_COLLECTION)
-    public InterestPointCollection getInterestPointByNameAndArea(@PathParam("name") String name) {
-        InterestPointCollection pointCollection = null;
-        InterestPointDAO pointDAO = new InterestPointDAOImpl();
-        Principal principal = securityContext.getUserPrincipal();
-        try {
-            if(principal == null)
-                pointCollection = pointDAO.getInterestPointsByName("Unknown", name);
-            else
-                pointCollection = pointDAO.getInterestPointsByName(principal.getName(), name);
         } catch (SQLException e) {
             throw new InternalServerErrorException();
         }
@@ -126,7 +109,7 @@ public class InterestPointResource {
 
         InterestPointDAO pointDAO = new InterestPointDAOImpl();
         try {
-            point = pointDAO.updateInterestPoint(id, securityContext.getUserPrincipal().getName(), point.getName(), point.getLongitude(), point.getLatitude());
+            point = pointDAO.updateInterestPoint(id, securityContext.getUserPrincipal().getName(), point.getName(), point.getLongitude(), point.getLatitude(), point.getDescription());
             if(point == null)
                 throw new NotFoundException("Interest point with id = "+id+" doesn't exist");
         } catch (SQLException e) {

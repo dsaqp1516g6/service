@@ -69,6 +69,8 @@ public class Main {
     public static void main(String[] args) throws IOException {
         final HttpServer server = startServer();
 
+        new ApiGoogleMaps().getGeocoding("Barcelona");
+
         /*new ApiGoogleMaps().getDistanceFromLatLonInKm(41.562786, 0.968573, 41.594081, 1.340561);
         new ApiGoogleMaps().getLatLonFromDistanceInKm(31.136680618795065, 41.562786, 0.968573);*/
 

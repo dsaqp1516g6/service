@@ -26,6 +26,7 @@ public class InterestPointCollection {
     private long newestTimestamp;
     private long oldestTimestamp;
     private List<InterestPoint> interestPoints = new ArrayList<>();
+    private Area pointsArea;
 
     public List<Link> getLinks() {
         return links;
@@ -57,5 +58,13 @@ public class InterestPointCollection {
 
     public void setInterestPoints(List<InterestPoint> interestPoints) {
         this.interestPoints = interestPoints;
+    }
+
+    public Area getPointsArea() {
+        return pointsArea;
+    }
+
+    public void setPointsArea(Area pointsArea) {
+        this.pointsArea = pointsArea;
     }
 }

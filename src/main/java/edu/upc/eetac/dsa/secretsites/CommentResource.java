@@ -1,10 +1,12 @@
 package edu.upc.eetac.dsa.secretsites;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.upc.eetac.dsa.secretsites.dao.CommentDAO;
 import edu.upc.eetac.dsa.secretsites.dao.CommentDAOImpl;
 import edu.upc.eetac.dsa.secretsites.entity.AuthToken;
 import edu.upc.eetac.dsa.secretsites.entity.Comment;
 import edu.upc.eetac.dsa.secretsites.entity.CommentCollection;
+import jdk.nashorn.internal.parser.JSONParser;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -86,17 +88,19 @@ public class CommentResource {
     }
 
     @Path("/{id}")
-    @PUT
-    @Consumes(SecretSitesMediaType.SECRETSITES_COMMENT)
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(SecretSitesMediaType.SECRETSITES_COMMENT)
-    public Comment updateComment(@PathParam("id") String id, Comment comment) {
+    public Comment updateComment(@PathParam("id") String id, @FormParam("commentid") String commentid,
+                                 @FormParam("userid") String userid, @FormParam("text") String text) {
+        Comment comment = new Comment(commentid, userid, text);
         if(comment == null)
             throw new BadRequestException("entity is null");
         if(!id.equals(comment.getId()))
             throw new BadRequestException("path parameter id and entity parameter id doesn't match");
 
-        String userid = securityContext.getUserPrincipal().getName();
-        if(!userid.equals(comment.getUserid()))
+        String useridToken = securityContext.getUserPrincipal().getName();
+        if(!useridToken.equals(comment.getUserid()))
             throw new ForbiddenException("operation not allowed");
         //TODO REALLY:  ADMINISTRATOR CAN UPDATE TOO
 
@@ -113,7 +117,7 @@ public class CommentResource {
 
     @Path("/{id}")
     @DELETE
-    public void deleteComment(@PathParam("id") String id) {
+    public Boolean deleteComment(@PathParam("id") String id) {
         String userid = securityContext.getUserPrincipal().getName();
         CommentDAO commentDAO = new CommentDAOImpl();
         try {
@@ -124,6 +128,7 @@ public class CommentResource {
                 throw new ForbiddenException("operation not allowed");
             //TODO REALLY:  ADMINISTRATOR CAN UPDATE TOO
             commentDAO.deleteComment(id);
+            return true;
         } catch (SQLException e) {
             throw new InternalServerErrorException();
         }

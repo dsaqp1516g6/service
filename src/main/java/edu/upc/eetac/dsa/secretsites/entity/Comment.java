@@ -18,17 +18,16 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Comment {
-    /*@InjectLinks({
+    @InjectLinks({
             @InjectLink(resource = SecretSitesRootAPIResource.class, style = InjectLink.Style.ABSOLUTE, rel = "home", title = "SecretSites Root API"),
             @InjectLink(resource = CommentResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-comments", title = "Current comments"),
             @InjectLink(resource = CommentResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-comment", title = "Create comment", type = MediaType.APPLICATION_FORM_URLENCODED),
-            @InjectLink(resource = CommentResource.class, method = "getComment", style = InjectLink.Style.ABSOLUTE, rel = "self Comment", title = "Comment", bindings = @Binding(name = "id", value = "${instance.id}")),
+            @InjectLink(resource = CommentResource.class, method = "getComment", style = InjectLink.Style.ABSOLUTE, rel = "self-comment", title = "Comment", bindings = @Binding(name = "id", value = "${instance.id}")),
             @InjectLink(resource = LoginResource.class, style = InjectLink.Style.ABSOLUTE, rel = "logout", title = "Logout"),
             @InjectLink(resource = UserResource.class, method = "getUser", style = InjectLink.Style.ABSOLUTE, rel = "user-profile", title = "User profile", bindings = @Binding(name = "id", value = "${instance.userid}")),
             @InjectLink(resource = CommentResource.class, method = "getCommentsByInterestPointId", style = InjectLink.Style.ABSOLUTE, rel = "next", title = "Newer comments", bindings = {@Binding(name = "pointid", value = "${instance.pointid}"), @Binding(name = "timestamp", value = "${instance.creationTimestamp}"), @Binding(name = "before", value = "false")}),
             @InjectLink(resource = CommentResource.class, method = "getCommentsByInterestPointId", style = InjectLink.Style.ABSOLUTE, rel = "previous", title = "Older comments", bindings = {@Binding(name = "pointid", value = "${instance.pointid}"), @Binding(name = "timestamp", value = "${instance.creationTimestamp}"), @Binding(name = "before", value = "true")})
-    })*/
-    @InjectLinks({})
+    })
     private List<Link> links;
     private String id;
     private String pointid;
@@ -100,6 +99,16 @@ public class Comment {
 
     public void setLastModified(long lastModified) {
         this.lastModified = lastModified;
+    }
+
+    public Comment() {
+
+    }
+
+    public Comment(String id, String userid, String text) {
+        this.id = id;
+        this.userid = userid;
+        this.text = text;
     }
 }
 

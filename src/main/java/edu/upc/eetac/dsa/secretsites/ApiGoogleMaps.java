@@ -2,6 +2,7 @@ package edu.upc.eetac.dsa.secretsites;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.upc.eetac.dsa.secretsites.entity.Area;
 
 import javax.ws.rs.PathParam;
 import java.io.IOException;
@@ -15,7 +16,8 @@ import java.util.ResourceBundle;
  */
 public class ApiGoogleMaps {
 
-    public JsonNode getGeocoding(String searchName) {
+    public Area getGeocoding(String searchName) {
+        Area area = new Area();
         JsonNode geometry = null;
         searchName = searchName.replace(" ", "%20");
         PropertyResourceBundle prb = (PropertyResourceBundle) ResourceBundle.getBundle("googleAPIs");
@@ -33,8 +35,10 @@ public class ApiGoogleMaps {
                 JsonNode northeast = jsonResult.get("results").get(0).get("geometry").get("viewport").get("northeast");
                 JsonNode southwest = jsonResult.get("results").get(0).get("geometry").get("viewport").get("southwest");
                 JsonNode location = jsonResult.get("results").get(0).get("geometry").get("location");
-                geometry = jsonResult.get("results").get(0).get("geometry");
-                return geometry;
+                area.setCenter(location);
+                area.setNorthEast(northeast);
+                area.setSouthWest(southwest);
+                return area;
             } else if(jsonResult.get("status").toString().contains("ZERO")) {
                 //"No existe ninguna concidencia";
             }
@@ -45,7 +49,7 @@ public class ApiGoogleMaps {
         catch (IOException e) {
             e.printStackTrace();
         }
-        return geometry;
+        return null;
     }
 
     public double getDistanceFromLatLonInKm(double lat1, double lon1, double lat2, double lon2) {

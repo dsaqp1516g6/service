@@ -6,6 +6,7 @@ import org.glassfish.jersey.linking.InjectLink;
 import org.glassfish.jersey.linking.InjectLinks;
 
 import javax.ws.rs.core.Link;
+import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 /**
@@ -19,7 +20,9 @@ public class SecretSitesRootAPI {
             @InjectLink(resource = UserResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-user", title = "Register", type= SecretSitesMediaType.SECRETSITES_AUTH_TOKEN),
             @InjectLink(resource = LoginResource.class, style = InjectLink.Style.ABSOLUTE, rel = "logout", title = "Logout", condition="${!empty resource.userid}"),
             @InjectLink(resource = InterestPointResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-point", title = "Create point", condition="${!empty resource.userid}", type=SecretSitesMediaType.SECRETSITES_POINT),
-            @InjectLink(resource = UserResource.class, method="getUser", style = InjectLink.Style.ABSOLUTE, rel = "user-profile", title = "User profile", condition="${!empty resource.userid}", type= SecretSitesMediaType.SECRETSITES_USER, bindings = @Binding(name = "id", value = "${resource.userid}"))
+            @InjectLink(resource = UserResource.class, method="getUser", style = InjectLink.Style.ABSOLUTE, rel = "user-profile", title = "User profile", condition="${!empty resource.userid}", type= SecretSitesMediaType.SECRETSITES_USER, bindings = @Binding(name = "id", value = "${resource.userid}")),
+            @InjectLink(resource = PhotoResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-photo", title = "Create photo", type = MediaType.MULTIPART_FORM_DATA),
+            @InjectLink(resource = SearchResource.class, style = InjectLink.Style.ABSOLUTE, rel = "search-points", title = "Search Points", type=SecretSitesMediaType.SECRETSITES_POINT_COLLECTION)
     })
     private List<Link> links;
 

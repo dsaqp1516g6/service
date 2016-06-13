@@ -1,5 +1,7 @@
 package edu.upc.eetac.dsa.secretsites.dao;
 
+import edu.upc.eetac.dsa.secretsites.ApiGoogleMaps;
+import edu.upc.eetac.dsa.secretsites.entity.Area;
 import edu.upc.eetac.dsa.secretsites.entity.InterestPoint;
 import edu.upc.eetac.dsa.secretsites.entity.InterestPointCollection;
 import edu.upc.eetac.dsa.secretsites.entity.PhotoCollection;
@@ -16,7 +18,7 @@ import java.text.DecimalFormat;
  */
 public class InterestPointDAOImpl implements InterestPointDAO {
     @Override
-    public InterestPoint createInterestPoint(String name, double longitude, double latitude) throws SQLException {
+    public InterestPoint createInterestPoint(String name, double longitude, double latitude, String description) throws SQLException {
         Connection connection = null;
         PreparedStatement stmt = null;
         String id = null;
@@ -35,6 +37,7 @@ public class InterestPointDAOImpl implements InterestPointDAO {
             stmt.setString(2, name);
             stmt.setDouble(3, longitude);
             stmt.setDouble(4, latitude);
+            stmt.setString(5, description);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw e;
@@ -65,13 +68,14 @@ public class InterestPointDAOImpl implements InterestPointDAO {
                 point = new InterestPoint();
                 point.setId(rs.getString("id"));
                 point.setName(rs.getString("name"));
+                point.setDescription(rs.getString("description"));
                 point.setLongitude(rs.getDouble("longitude"));
                 point.setLatitude(rs.getDouble("latitude"));
                 point.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
                 point.setStatus(getInterestPointStatus(id, userid));
                 point.setRating(getRating(id, true));
                 point.setComments((new CommentDAOImpl()).getCommentsByInterestPointId(id, System.currentTimeMillis(), true));
-                point.setPhotos((new PhotoDAOImpl()).getPhotosByPointId(id));  //TODO ORDER BY SOMETHING?¿
+                point.setPhotos((new PhotoDAOImpl()).getPhotosByPointId(id, userid));  //TODO ORDER BY SOMETHING?¿
                 point.setBestPhoto((new PhotoDAOImpl()).getBestVotedPhoto(point.getPhotos())); //TODO to get the best voted photo in a point
             }
         } catch (SQLException e) {
@@ -100,12 +104,13 @@ public class InterestPointDAOImpl implements InterestPointDAO {
                 InterestPoint point = new InterestPoint();
                 point.setId(rs.getString("id"));
                 point.setName(rs.getString("name"));
+                point.setDescription(rs.getString("description"));
                 point.setLongitude(rs.getDouble("longitude"));
                 point.setLatitude(rs.getDouble("latitude"));
                 point.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
                 point.setStatus(getInterestPointStatus(point.getId(), userid));
                 point.setRating(getRating(point.getId(), true));
-                PhotoCollection photosCollection = (new PhotoDAOImpl()).getPhotosByPointId(point.getId());  //TODO ORDER BY SOMETHING?¿
+                PhotoCollection photosCollection = (new PhotoDAOImpl()).getPhotosByPointId(point.getId(), userid);  //TODO ORDER BY SOMETHING?¿
                 point.setBestPhoto((new PhotoDAOImpl()).getBestVotedPhoto(photosCollection));
                 if (first) {
                     pointCollection.setNewestTimestamp(point.getCreationTimestamp());
@@ -124,7 +129,11 @@ public class InterestPointDAOImpl implements InterestPointDAO {
     }
 
     @Override
-    public InterestPointCollection getInterestPointsByName(String userid, String pointName) throws SQLException {
+    public InterestPointCollection getInterestPointsByName(String userid, String searchName) throws SQLException {
+        float littleLng;
+        float littleLat;
+        float bigLng;
+        float bigLat;
         InterestPointCollection pointCollection = new InterestPointCollection();
 
         Connection connection = null;
@@ -132,7 +141,7 @@ public class InterestPointDAOImpl implements InterestPointDAO {
         try {
             connection = Database.getConnection();
             stmt = connection.prepareStatement(InterestPointDAOQuery.GET_POINTS_BY_NAME);
-            stmt.setString(1, "%" + pointName + "%");
+            stmt.setString(1, "%" + searchName + "%");
 
             ResultSet rs = stmt.executeQuery();
             boolean first = true;
@@ -140,17 +149,75 @@ public class InterestPointDAOImpl implements InterestPointDAO {
                 InterestPoint point = new InterestPoint();
                 point.setId(rs.getString("id"));
                 point.setName(rs.getString("name"));
+                point.setDescription(rs.getString("description"));
                 point.setLatitude(rs.getDouble("latitude"));
                 point.setLongitude(rs.getDouble("longitude"));
                 point.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
                 point.setStatus(getInterestPointStatus(point.getId(), userid));
                 point.setRating(getRating(point.getId(), true));
-                PhotoCollection photosCollection = (new PhotoDAOImpl()).getPhotosByPointId(point.getId());  //TODO ORDER BY SOMETHING?¿
+                PhotoCollection photosCollection = (new PhotoDAOImpl()).getPhotosByPointId(point.getId(), userid);  //TODO ORDER BY SOMETHING?¿
                 point.setBestPhoto((new PhotoDAOImpl()).getBestVotedPhoto(photosCollection));
                 if (first) {
                     pointCollection.setNewestTimestamp(point.getCreationTimestamp());
                     first = false;
                 }
+                pointCollection.setOldestTimestamp(point.getCreationTimestamp());
+                pointCollection.getInterestPoints().add(point);
+            }
+            Area area = (new ApiGoogleMaps()).getGeocoding(searchName);
+            if(area != null) {
+                pointCollection.setPointsArea(area);
+                if (area.getLongSouth() < area.getLongNorth()) {
+                    littleLng = area.getLongSouth();
+                    bigLng = area.getLongNorth();
+                } else {
+                    littleLng = area.getLongNorth();
+                    bigLng = area.getLongSouth();
+                }
+                if (area.getLatSouth() < area.getLatNorth()) {
+                    littleLat = area.getLatSouth();
+                    bigLat = area.getLatNorth();
+                } else {
+                    littleLat = area.getLatNorth();
+                    bigLat = area.getLatSouth();
+                }
+                pointCollection = getInterestPointsByLatLng(userid,
+                        littleLat, bigLat, littleLng, bigLng, pointCollection);
+            }
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (stmt != null) stmt.close();
+            if (connection != null) connection.close();
+        }
+        return pointCollection;
+    }
+
+    public InterestPointCollection getInterestPointsByLatLng(String userid, float littleLat, float bigLat,
+                                                             float littleLng, float bigLng, InterestPointCollection pointCollection) throws SQLException{
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        try {
+            connection = Database.getConnection();
+            stmt = connection.prepareStatement(InterestPointDAOQuery.GET_POINTS_BY_LATLNG);
+            stmt.setFloat(1, bigLng);
+            stmt.setFloat(2, littleLng);
+            stmt.setFloat(3, bigLat);
+            stmt.setFloat(4, littleLat);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                InterestPoint point = new InterestPoint();
+                point.setId(rs.getString("id"));
+                point.setName(rs.getString("name"));
+                point.setDescription(rs.getString("description"));
+                point.setLatitude(rs.getDouble("latitude"));
+                point.setLongitude(rs.getDouble("longitude"));
+                point.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
+                point.setStatus(getInterestPointStatus(point.getId(), userid));
+                point.setRating(getRating(point.getId(), true));
+                PhotoCollection photosCollection = (new PhotoDAOImpl()).getPhotosByPointId(point.getId(), userid);
+                point.setBestPhoto((new PhotoDAOImpl()).getBestVotedPhoto(photosCollection));
                 pointCollection.setOldestTimestamp(point.getCreationTimestamp());
                 pointCollection.getInterestPoints().add(point);
             }
@@ -181,12 +248,13 @@ public class InterestPointDAOImpl implements InterestPointDAO {
                 InterestPoint point = new InterestPoint();
                 point.setId(rs.getString("id"));
                 point.setName(rs.getString("name"));
+                point.setDescription(rs.getString("description"));
                 point.setLongitude(rs.getDouble("longitude"));
                 point.setLatitude(rs.getDouble("latitude"));
                 point.setCreationTimestamp(rs.getTimestamp("creation_timestamp").getTime());
                 point.setStatus(status);
                 point.setRating(getRating(point.getId(), true));
-                PhotoCollection photosCollection = (new PhotoDAOImpl()).getPhotosByPointId(point.getId());  //TODO ORDER BY SOMETHING?¿
+                PhotoCollection photosCollection = (new PhotoDAOImpl()).getPhotosByPointId(point.getId(), userid);  //TODO ORDER BY SOMETHING?¿
                 point.setBestPhoto((new PhotoDAOImpl()).getBestVotedPhoto(photosCollection));
                 if (first) {
                     pointCollection.setNewestTimestamp(point.getCreationTimestamp());
@@ -205,7 +273,7 @@ public class InterestPointDAOImpl implements InterestPointDAO {
     }
 
     @Override
-    public InterestPoint updateInterestPoint(String id, String userid, String name, double longitude, double latitude) throws SQLException {
+    public InterestPoint updateInterestPoint(String id, String userid, String name, double longitude, double latitude, String description) throws SQLException {
         InterestPoint point = null;
 
         Connection connection = null;
@@ -218,6 +286,7 @@ public class InterestPointDAOImpl implements InterestPointDAO {
             stmt.setDouble(2, longitude);
             stmt.setDouble(3, latitude);
             stmt.setString(4, id);
+            stmt.setString(5, description);
 
             int rows = stmt.executeUpdate();
             if (rows == 1)

@@ -19,7 +19,6 @@ public class InterestPoint {
             @InjectLink(resource = SecretSitesRootAPIResource.class, style = InjectLink.Style.ABSOLUTE, rel = "home", title = "SecretSites Root API"),
             @InjectLink(resource = CommentResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-comment", title = "Create comment", type = MediaType.APPLICATION_FORM_URLENCODED),
             @InjectLink(resource = InterestPointResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-point", title = "Create point", type = MediaType.APPLICATION_FORM_URLENCODED),
-            @InjectLink(resource = PhotoResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-photo", title = "Create photo", type = MediaType.APPLICATION_FORM_URLENCODED),
             @InjectLink(resource = InterestPointResource.class, method = "getInterestPoint", style = InjectLink.Style.ABSOLUTE, rel = "self-point", title = "Point", bindings = @Binding(name = "id", value = "${instance.id}")),
             @InjectLink(resource = CommentResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-comments", title = "Current comments", type= SecretSitesMediaType.SECRETSITES_COMMENT_COLLECTION),
             @InjectLink(resource = PhotoResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-photos", title = "Current photos", type= SecretSitesMediaType.SECRETSITES_PHOTO_COLLECTION)
@@ -29,6 +28,7 @@ public class InterestPoint {
     private PhotoCollection photos;
     private String id;
     private String name;
+    private String description;
     private double longitude;
     private double latitude;
     private Photo bestPhoto; //TODO is the correct whay to save the better photo?
@@ -74,6 +74,14 @@ public class InterestPoint {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public double getLongitude() {

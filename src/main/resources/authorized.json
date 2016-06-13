@@ -16,6 +16,10 @@
     "methods": ["GET"]
   },
   {
+    "path": "(?i)interestpoints/search/?(.*?)",
+    "methods": ["GET"]
+  },
+  {
     "path": "(?i)comments/?([0-9a-f]{32})?",
     "methods": ["GET"]
   },

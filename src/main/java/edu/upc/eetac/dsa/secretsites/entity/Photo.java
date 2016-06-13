@@ -1,10 +1,7 @@
 package edu.upc.eetac.dsa.secretsites.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import edu.upc.eetac.dsa.secretsites.LoginResource;
-import edu.upc.eetac.dsa.secretsites.PhotoResource;
-import edu.upc.eetac.dsa.secretsites.SecretSitesRootAPIResource;
-import edu.upc.eetac.dsa.secretsites.UserResource;
+import edu.upc.eetac.dsa.secretsites.*;
 import org.glassfish.jersey.linking.Binding;
 import org.glassfish.jersey.linking.InjectLink;
 import org.glassfish.jersey.linking.InjectLinks;
@@ -24,6 +21,7 @@ public class Photo {
             @InjectLink(resource = PhotoResource.class, style = InjectLink.Style.ABSOLUTE, rel = "current-photos", title = "Current photos"),
             @InjectLink(resource = PhotoResource.class, style = InjectLink.Style.ABSOLUTE, rel = "create-photo", title = "Create photo", type = MediaType.APPLICATION_FORM_URLENCODED),
             @InjectLink(resource = PhotoResource.class, method = "getPhoto", style = InjectLink.Style.ABSOLUTE, rel = "self-photo", title = "Photo", bindings = @Binding(name = "id", value = "${instance.id}")),
+            @InjectLink(resource = RatingResource.class, style = InjectLink.Style.ABSOLUTE, rel = "rating-photo", title = "Rating Photo", bindings = @Binding(name = "id", value = "${instance.id}")),
     })
     private List<Link> links;
     private String id;

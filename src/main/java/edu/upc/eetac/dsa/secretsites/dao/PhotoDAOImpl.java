@@ -48,11 +48,11 @@ public class PhotoDAOImpl implements PhotoDAO {
                 connection.close();
             }
         }
-        return getPhotoById(id);
+        return getPhotoById(id, userid);
     }
 
     @Override
-    public Photo getPhotoById(String id) throws SQLException {
+    public Photo getPhotoById(String id, String userid) throws SQLException {
         Photo photo = null;
 
         Connection connection = null;
@@ -72,7 +72,7 @@ public class PhotoDAOImpl implements PhotoDAO {
                 photo.setUsername(rs.getString("username"));
                 photo.setUploadTimestamp((rs.getTimestamp("upload_timestamp").getTime()));
                 photo.setTotalRating((new InterestPointDAOImpl()).getRating(photo.getId(), false));
-                photo.setMyRating(getPhotoUserRating(photo.getId(), photo.getPointid()));
+                photo.setMyRating(getPhotoUserRating(photo.getId(), userid));
                 photo.setUrl(photo.getId().toLowerCase() + ".png");
             }
         } catch (SQLException e) {
@@ -85,7 +85,7 @@ public class PhotoDAOImpl implements PhotoDAO {
     }
 
     @Override
-    public PhotoCollection getPhotosByPointId(String pointid) throws SQLException {
+    public PhotoCollection getPhotosByPointId(String pointid, String userid) throws SQLException {
         PhotoCollection photoCollection = new PhotoCollection();
 
         Connection connection = null;
@@ -105,7 +105,7 @@ public class PhotoDAOImpl implements PhotoDAO {
                 photo.setUsername(rs.getString("username"));
                 photo.setUploadTimestamp((rs.getTimestamp("upload_timestamp").getTime()));
                 photo.setTotalRating((new InterestPointDAOImpl()).getRating(photo.getId(), false));
-                photo.setMyRating(getPhotoUserRating(photo.getId(), pointid));
+                photo.setMyRating(getPhotoUserRating(photo.getId(), userid));
                 photo.setUrl(photo.getId().toLowerCase() + ".png");
                 if (first) {
                     photoCollection.setNewestTimestamp(photo.getUploadTimestamp());
@@ -180,7 +180,7 @@ public class PhotoDAOImpl implements PhotoDAO {
             if (stmt != null) stmt.close();
             if (connection != null) connection.close();
         }
-        return getPhotoById(id);
+        return getPhotoById(id, userid);
     }
 
     @Override
@@ -239,10 +239,10 @@ public class PhotoDAOImpl implements PhotoDAO {
         } catch (IOException e) {
             throw new InternalServerErrorException("Something has been wrong when reading the file.");
         }
-        String filename = "img\\" + id.toString() + ".jpg";
+        String filename = "img\\" + id.toString() + ".png";
         try {
             //ImageIO.write(image, "jpg", new File(filename));
-            ImageIO.write(imageResized, "jpg", new File(filename));
+            ImageIO.write(imageResized, "png", new File(filename));
         } catch (IOException e) {
             throw new InternalServerErrorException("Something has been wrong when converting the file.");
         }

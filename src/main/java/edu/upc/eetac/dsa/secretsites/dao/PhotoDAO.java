@@ -11,8 +11,8 @@ import java.sql.SQLException;
  */
 public interface PhotoDAO {
     public Photo uploadPhoto(String pointid, String userid, InputStream image) throws SQLException;
-    public Photo getPhotoById(String id) throws SQLException;
-    public PhotoCollection getPhotosByPointId(String pointid) throws SQLException;
+    public Photo getPhotoById(String id, String userid) throws SQLException;
+    public PhotoCollection getPhotosByPointId(String pointid, String userid) throws SQLException;
     public boolean deletePhoto(String id) throws SQLException;
 
     public Photo getBestVotedPhoto(PhotoCollection photos) throws SQLException;
